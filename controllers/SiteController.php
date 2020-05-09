@@ -37,19 +37,7 @@ class SiteController extends Controller
         $ingredients = Ingredient::getIngredientsAsArray();
         $searchModel = new DishAdvancedSearch();
 
-        $queryParams = Yii::$app->getRequest()->queryParams;
-
-        $dishes = [];
-        if ( isset($queryParams['DishAdvancedSearch']['_ingredients'])
-            && is_countable($queryParams['DishAdvancedSearch']['_ingredients'])
-            && count($queryParams['DishAdvancedSearch']['_ingredients']) < 2 )
-        {
-            Yii::$app->getSession()->setFlash('warning', 'Выберите больше ингредиентов');
-        }
-        else
-        {
-            $dishes = $searchModel->search(Yii::$app->request->queryParams);
-        }
+        $dishes = $searchModel->search(Yii::$app->getRequest()->queryParams);
 
         return $this->render('dish', [
             'searchModel' => $searchModel,

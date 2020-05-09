@@ -8,9 +8,17 @@ use Yii;
 
 class DishAdvancedSearch extends Dish
 {
+    const SEARCH_INIT_STATUS = 0;
+    const SEARCH_FULL_MATCH_STATUS = 1;
+    const SEARCH_PARTIAL_MATCH_STATUS = 2;
+    const SEARCH_NOT_FOUND_MATCH_STATUS = 3;
+
+    private $_searchStatus = 0;
+
     public function rules()
     {
         $rules[] = parent::rules()['ingredients'];
+//        $rules[] = parent::rules()['ingredients_required'];
         return $rules;
     }
 
@@ -20,6 +28,10 @@ class DishAdvancedSearch extends Dish
      * @return array
      */
     public function search($params) {
+
+        if (!$params) {
+            return [];
+        }
 
         $this->load($params);
 
@@ -54,9 +66,10 @@ class DishAdvancedSearch extends Dish
             ->asArray()
             ->all();
 
+        $this->_searchStatus = self::SEARCH_FULL_MATCH_STATUS;
+
         // agar to'liq sovpadenie topilmasa chastichniy (2) query qilamiz
         if (!$dishes) {
-            Yii::debug('second query');
             $dishes = Dish::find()
                 ->select('dish.*, COUNT(*) AS count_ingredient')
                 ->innerJoinWith('ingredients')
@@ -67,8 +80,22 @@ class DishAdvancedSearch extends Dish
                 ->orderBy('count_ingredient DESC')
                 ->asArray()
                 ->all();
+
+            $this->_searchStatus = self::SEARCH_PARTIAL_MATCH_STATUS;
+        }
+
+        if (!$dishes) {
+            $this->_searchStatus = self::SEARCH_NOT_FOUND_MATCH_STATUS;
         }
 
         return $dishes;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getSearchStatus() {
+        return $this->_searchStatus;
     }
 }

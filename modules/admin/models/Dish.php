@@ -32,6 +32,7 @@ class Dish extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
+            'ingredients_required' => ['_ingredients', 'required'],
             'ingredients' => ['_ingredients', 'validateIngredients', 'skipOnEmpty' => false],
 
             [['name'], 'required'],
@@ -40,15 +41,20 @@ class Dish extends \yii\db\ActiveRecord
     }
 
     public function validateIngredients($attribute, $params) {
-        if (is_countable($this->$attribute)) {
-            foreach ($this->$attribute as $ingredient) {
-                if (!is_numeric($ingredient)) {
-                    $this->addError($attribute, 'data not valid!');
-                    return;
-                }
-            }
-        } else {
+        if (!is_array($this->$attribute)) {
             $this->addError($attribute, 'Выберите больше ингредиентов!');
+            return;
+        }
+        if (is_array($this->$attribute) && count($this->$attribute) < 2) {
+            $this->addError($attribute, 'Выберите больше ингредиентов!');
+            return;
+        }
+
+        foreach ($this->$attribute as $ingredient) {
+            if (!is_numeric($ingredient)) {
+                $this->addError($attribute, 'data not valid!');
+                return;
+            }
         }
     }
 

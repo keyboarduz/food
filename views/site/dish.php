@@ -2,11 +2,12 @@
 
 /* @var $this yii\web\View */
 /* @var $dishes array */
-/* @var $searchModel yii\db\ActiveRecord */
+/* @var $searchModel DishAdvancedSearch */
 /* @var $ingredients array */
 
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
+use app\modules\admin\models\DishAdvancedSearch;
 
 $this->title = 'Поиск блюдо';
 ?>
@@ -17,6 +18,7 @@ $this->title = 'Поиск блюдо';
         <div class="row">
             <div class="col-xs-12 col-sm-3">
                 <?php $form = ActiveForm::begin([
+                    'enableClientValidation' => false,
                     'action' => ['dish'],
                     'method' => 'get',
                 ]); ?>
@@ -30,6 +32,21 @@ $this->title = 'Поиск блюдо';
                 <?php ActiveForm::end(); ?>
             </div>
             <div class="col-sx-12 col-sm-9">
+
+                <?php if ($searchModel->getSearchStatus() === DishAdvancedSearch::SEARCH_FULL_MATCH_STATUS): ?>
+                    <span class="label label-success">
+                        Найдены блюда с полным совпадением ингредиентов
+                    </span>
+                <?php elseif ($searchModel->getSearchStatus() === DishAdvancedSearch::SEARCH_PARTIAL_MATCH_STATUS): ?>
+                    <span class="label label-info">
+                        Найдены блюда с частичным совпадением ингредиентов
+                    </span>
+                <?php elseif ($searchModel->getSearchStatus() === DishAdvancedSearch::SEARCH_NOT_FOUND_MATCH_STATUS): ?>
+                    <div class="alert alert-warning" role="alert">
+                        Ничего не найдено
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($dishes): ?>
                     <?php foreach ($dishes as $dish): ?>
                         <div class="col-xs-12">
@@ -43,10 +60,6 @@ $this->title = 'Поиск блюдо';
 
                         </div>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <div class="well">
-                        Ничего не найдено
-                    </div>
                 <?php endif; ?>
             </div>
         </div>
