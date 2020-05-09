@@ -5,11 +5,20 @@ $db = require __DIR__ . '/db.php';
 
 $config = [
     'id' => 'basic',
+    'name' => 'Блюда',
     'basePath' => dirname(__DIR__),
     'bootstrap' => ['log'],
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',
+    ],
+    'timeZone' => 'Asia/Tashkent',
+    'language' => 'ru-Ru',
+    'defaultRoute' => ['/home'],
+    'modules' => [
+        'admin' => [
+            'class' => \app\modules\admin\Admin::class,
+        ]
     ],
     'components' => [
         'request' => [
@@ -22,6 +31,7 @@ $config = [
         'user' => [
             'identityClass' => 'app\models\User',
             'enableAutoLogin' => true,
+            'returnUrl' => 'admin/cabinet/login'
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
@@ -43,14 +53,15 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
+
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                '' => 'site/dish',
             ],
         ],
-        */
+
     ],
     'params' => $params,
 ];
@@ -61,7 +72,7 @@ if (YII_ENV_DEV) {
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+        'allowedIPs' => ['*'],
     ];
 
     $config['bootstrap'][] = 'gii';
@@ -69,6 +80,7 @@ if (YII_ENV_DEV) {
         'class' => 'yii\gii\Module',
         // uncomment the following to add your IP if you are not connecting from localhost.
         //'allowedIPs' => ['127.0.0.1', '::1'],
+        'allowedIPs' => ['*'],
     ];
 }
 
