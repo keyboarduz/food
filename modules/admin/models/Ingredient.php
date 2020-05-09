@@ -76,7 +76,7 @@ class Ingredient extends \yii\db\ActiveRecord
      */
     public static function getIngredientsAsArray() {
         $ingredients = static::find()
-            ->where(['status' => self::SHOW])
+            ->where(['status' => self::STATUS_SHOW])
             ->asArray()
             ->all();
 
