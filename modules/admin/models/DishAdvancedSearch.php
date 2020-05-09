@@ -3,6 +3,8 @@
 
 namespace app\modules\admin\models;
 
+use Yii;
+
 
 class DishAdvancedSearch extends Dish
 {
@@ -33,18 +35,28 @@ class DishAdvancedSearch extends Dish
             ->groupBy('dish.id')
             ->having('COUNT(*) = SUM(ingredient.status)');
 
-        $dishes = Dish::find()
+        $allIngredientsByDishQuery = Dish::find()
+            ->select('COUNT(*) AS sum2, dish.*')
             ->innerJoinWith('ingredients')
+            ->groupBy('dish.id');
+
+        // Если найдены блюда с полным совпадением ингредиентов ­ вывести
+        //только их.
+        $dishes = Dish::find()
+            ->select('COUNT(*) AS sum1, dish.*, allIngByDish.sum2 AS sum22')
+            ->innerJoinWith('ingredients')
+            ->innerJoin(['allIngByDish' => $allIngredientsByDishQuery], 'allIngByDish.id = dish.id')
             ->andWhere(['in', 'dish.id', $activeDishesQuery])
             ->andWhere(['ingredient.id' => $this->_ingredients])
             ->groupBy('dish.id')
-            ->having('COUNT(*) >= :countIngredient')
+            ->having('sum1 = :countIngredient AND sum22 = sum1')
             ->addParams([':countIngredient' => $countIngredient])
             ->asArray()
             ->all();
 
         // agar to'liq sovpadenie topilmasa chastichniy (2) query qilamiz
         if (!$dishes) {
+            Yii::debug('second query');
             $dishes = Dish::find()
                 ->select('dish.*, COUNT(*) AS count_ingredient')
                 ->innerJoinWith('ingredients')
